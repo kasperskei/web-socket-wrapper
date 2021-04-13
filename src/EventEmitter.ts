@@ -1,5 +1,5 @@
 export type EventName = string
-export type EventHandler = (...args: any[]) => any
+export type EventHandler = <A extends unknown[], R extends unknown>(...args: A) => R
 
 export class EventEmitter {
   constructor(
@@ -24,11 +24,11 @@ export class EventEmitter {
    * @returns флаг удаления слушателей
    */
   off(name?: EventName, handler?: EventHandler): boolean {
-    if (name === undefined) {
+    if (name == undefined) {
       return this.handlers.clear(), true
     }
 
-    if (handler === undefined) {
+    if (handler == undefined) {
       return this.handlers.delete(name)
     }
 
@@ -46,17 +46,5 @@ export class EventEmitter {
     }
 
     return () => this.off(name, handler)
-  }
-
-  /**
-   * @returns функция удаления слушателя
-   */
-  once(name: EventName, handler: EventHandler): () => boolean {
-    const off = this.on(name, (...args) => {
-      handler(...args)
-      off()
-    })
-
-    return off
   }
 }

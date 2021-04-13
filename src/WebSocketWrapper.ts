@@ -23,6 +23,7 @@ export class WebSocketWrapper {
   /** Запросы, ожидающие ответа */
   private readonly pending: Map<string, RequestPromise> = new Map()
 
+  /** Хранилище состояний для сокет соединения */
   private readonly state: Map<string, any> = new Map()
 
   private readonly emitter: EventEmitter = new EventEmitter()
@@ -153,17 +154,17 @@ export class WebSocketWrapper {
     return request
   }
 
-  sendResolve(requestId: string, data: Record<string, any>) {
+  sendResolve(requestId: string, data: Record<string, any>): void {
     const message = this.serialize({ requestId, data })
     this.send(message)
   }
 
-  sendReject(requestId: string, error: Error | any) {
+  sendReject(requestId: string, error: Error | any): void {
     const message = this.serialize({ requestId, error })
     this.send(message)
   }
 
-  private wrapHandler(handler: EventHandler) {
+  private wrapHandler(handler: EventHandler): (message: IMessage) => void {
     return async (message: IMessage) => {
       const { requestId } = message
 
@@ -189,20 +190,21 @@ export class WebSocketWrapper {
     return this.emitter.on(eventName, this.wrapHandler(handler))
   }
 
-  once(eventName: EventName, handler: EventHandler) {
-    return this.emitter.once(eventName, this.wrapHandler(handler))
-  }
-
-  /** @todo Удалять wrappedListener */
-  off(eventName: EventName, handler: EventHandler) {
+  /**
+   * @todo Удалять wrappedListener
+   * @returns функция удаления слушателя
+   */
+  off(eventName: EventName, handler: EventHandler): boolean {
     return this.emitter.off(eventName, handler)
   }
 
-  get(key: string) {
+  /** Достать значение состояния сокета по ключу */
+  get<T>(key: string): T {
     return this.state.get(key)
   }
 
-  set(key: string, value: any) {
-    return this.state.set(key, value)
+  /** Сохранить значение состояния сокета по ключу */
+  set<T>(key: string, value: T): void {
+    this.state.set(key, value)
   }
 }

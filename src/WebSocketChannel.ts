@@ -33,10 +33,6 @@ export class WebSocketChannel {
     return this.wrapper.on(this.joinPath(eventName), handler)
   }
 
-  once(eventName: EventName, handler: EventHandler) {
-    return this.wrapper.once(this.joinPath(eventName), handler)
-  }
-
   off(eventName: EventName, handler: EventHandler) {
     return this.wrapper.off(this.joinPath(eventName), handler)
   }
